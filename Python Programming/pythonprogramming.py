@@ -1,7 +1,8 @@
 grids = [str(i) for i in range(1,10)]
 def main():
     count = 0
-    print("See numbers next to board for reference on where to place X or O.\n ")
+    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\nPlayer 2 uses the 'O' mark."
+        "\nSee numbers next to board for reference on where to place X or O.\n ")
     newBoard = Board()
     print("Player 1 is X")
     user1 = input("Enter name : ")
