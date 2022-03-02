@@ -1,14 +1,19 @@
 grids = [str(i) for i in range(1,10)]
+import random
 def main():
     count = 0
-    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\nPlayer 2 uses the 'O' mark."
+    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\nPlayer 2 is the computer and uses the 'O' mark."
         "\nSee numbers next to board for reference on where to place X or O.\n ")
     newBoard = Board()
     print("Player 1 is X")
     user1 = input("Enter name : ")
-    print("\n")
-    print("Player 2 is O")
-    user2 = input("Enter name : ")
+    r = input("\nEnter Y if your second player is a computer. N if you have a second player. ")
+    if r == 'Y':
+        print("Computer Player is O")
+        user2 = 'Computer'
+    else: 
+        user2 = input("Enter name : ")
+
     currUser, nextUser = user1, user2
     X, O = 'X','O'
     while True:
@@ -16,10 +21,13 @@ def main():
         print(newBoard.getBoard())  # Display board
         pos = None #position is empty at the beginning
         while not newBoard.isValidInput(pos): #if user input is not valid or if _grids['1'] is not empty,
-            print(f'Where would {currUser} like to place {X}? (1-9)') #keep showing this prompt
-            pos = input() #get user input for board position
+            if currUser == 'Computer':
+                pos = newBoard.getComputerInput()
+                print(f'{currUser} has placed {X} at the grid {pos}')
+            else: 
+                print(f'Where would {currUser} like to place {X}? (1-9)') #keep showing this prompt 
+                pos = input() #get user input for board position
         newBoard.updateBoard(pos, X, count) #update board with position and the mark 'X' or 'O'
-
         # The game is over if there is a winner, or the board is full and it is a tie
         if newBoard.checkWinning(X): #use this method to check for a winner
             print(newBoard.getBoard()) #show board
@@ -30,8 +38,9 @@ def main():
             print('The game is a tie!')
             break #break both loops when there is a tie
         X, O = O, X # switch turns while loop is unbroken
-        currUser, nextUser = nextUser, currUser  # switch turns while loop is unbroken
+        currUser, nextUser = nextUser, currUser  # switch turns while loop is unbrokesn
     print('Game over! Thank you for playing. ')
+
 
 class Board:
     def __init__(self): 
@@ -46,11 +55,15 @@ class Board:
       ---------
       \t{self._grids['4']}|{self._grids['5']}|{self._grids['6']}  4 5 6
       ---------
-      \t{self._grids['7']}|{self._grids['8']}|{self._grids['9']}  7 8 9\n'''
+      \t{self._grids['7']}|{self._grids['8']}|{self._grids['9']}  7 8 9\n\n\n'''
 
     def isValidInput(self, g):
         return g in grids and self._grids[g] == ' ' #returns false
         #check if user's input is a valid number from 1-9 and if the grid of that num is empty
+
+    def getComputerInput(self): 
+        emptyGrids = [k for k,v in self._grids.items() if v == ' ']
+        return random.sample(emptyGrids, 1)[0]
 
     def checkWinning(self, user):
         g = self._grids #get the dict containing all key-value pairs
@@ -74,9 +87,9 @@ class Board:
     def updateBoard(self, g, user, c):
         """Sets the space on the board to player."""
         self._grids[g] = user #set the value e.g., 'X' to a specific key '1'
-        print("\n--------------------------")
+        print("--------------------------")
         print(f'\tRound {c}')
-        print("--------------------------\n")
+        print("--------------------------")
 
 if __name__ == "__main__":
     main() # Call main() if this module is run, but not when imported.
