@@ -2,7 +2,7 @@ grids = [str(i) for i in range(1,10)]
 import random
 def main():
     count = 0
-    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\nPlayer 2 is the computer and uses the 'O' mark."
+    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\nYou have the option of playing against the computer or another human player. "
         "\nSee numbers next to board for reference on where to place X or O.\n ")
     newBoard = Board()
     print("Player 1 is X")
@@ -63,7 +63,7 @@ class Board:
 
     def getComputerInput(self): 
         emptyGrids = [k for k,v in self._grids.items() if v == ' ']
-        return random.sample(emptyGrids, 1)[0]
+        return random.sample(emptyGrids, 1)[0] #randomly sample a key//pos where the grid is empty
 
     def checkWinning(self, user):
         g = self._grids #get the dict containing all key-value pairs
