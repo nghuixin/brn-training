@@ -1,27 +1,12 @@
 import random
 grids = [str(i) for i in range(1,10)]
-
 def main():
     count = 0
     print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\n"
     "You have the option of playing against the computer or another human player. "
         "\nSee numbers next to board for reference on where to place X or O.\n ")
     newBoard = Board()
-    print("Player 1 is X")
-    print('Enter player 1\'s name: \n')
-    user1= input("Enter name : ")
-
-    while True: 
-        r = input("\nEnter Y if your second player is a computer. N if you have a second player. ")
-        if r == 'Y':
-            print("Computer Player is O")
-            user2 = 'Computer'
-            break
-        elif r=='N':
-            user2 = input("Enter name : ")
-            break
-        else: 
-            continue
+    user1, user2 = getUsers()
     currUser, nextUser = user1, user2
     X, O = 'X','O'
     while True:
@@ -33,8 +18,13 @@ def main():
                 pos = newBoard.getComputerInput()
                 print(f'{currUser} has placed {X} at the grid {pos}')
             else: 
-                print(f'Where would {currUser} like to place {X}? (1-9)') #keep showing this prompt 
-                pos = input() #get user input for board position
+                empty = newBoard.checkEmpty()
+                if pos not in empty and pos != None:
+                    print(f'Input "{pos}" is not number between 1-9 or the grid is already filled.\n\nWhere would {currUser} like to place {X}? (1-9)') #keep showing this prompt 
+                    pos = input() #get user input for board position
+                else:
+                    print(f'Where would {currUser} like to place {X}? (1-9)') #keep showing this prompt 
+                    pos = input() #get user input for board position
         newBoard.updateBoard(pos, X, count) #update board with position and the mark 'X' or 'O'
         # The game is over if there is a winner, or the board is full and it is a tie
         if newBoard.checkWinning(X): #use this method to check for a winner
@@ -49,8 +39,24 @@ def main():
         currUser, nextUser = nextUser, currUser  # switch turns while loop is unbrokesn
     print('Game over! Thank you for playing. ')
 
+def getUsers():
+    print("Player 1 is X")
+    print('Enter player 1\'s name: \n')
+    user1= input("Enter name : ")
+
+    while True: 
+        r = input("\nEnter Y if you wish to play against the computer, or N if you have a second player. ")
+        if r == 'Y':
+            print("Computer Player is O")
+            user2 = 'Computer'
+            break
+        elif r=='N':
+            user2 = input("Enter name : ")
+            break
+        else: 
+            continue
+    return user1, user2
 class Board:
-    
     def __init__(self):
         '''Initialize board object and assign it the attribute '_grids' ''' 
         self._grids = {} 
@@ -71,14 +77,21 @@ class Board:
                     g (str): string representation of number (1-9)
             Returns:
                     boolean:  true or false'''
-        return g in grids and self._grids[g] == ' ' #
+        validInput = g in grids and self._grids[g] == ' '
+        #if self._grids[g] == ' ':
+            #print('Please enter a valid input between 1-9 that has not been filled on board. ')
+        return validInput  #
 
     def getComputerInput(self): 
         ''' returns the computer input.
             Returns:
-                    int:  a randomly sampled a key/pos where the grid is empty'''       
+                int:  a randomly sampled a key/pos where the grid is empty'''       
         emptyGrids = [k for k,v in self._grids.items() if v == ' ']
         return random.sample(emptyGrids, 1)[0] 
+    
+    def checkEmpty(self):
+        emptyGrids = [k for k,v in self._grids.items() if v == ' ']
+        return emptyGrids
 
     def checkWinning(self, user):
         ''' checks if there is a winning player.
