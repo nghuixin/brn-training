@@ -6,14 +6,20 @@ def main():
         "\nSee numbers next to board for reference on where to place X or O.\n ")
     newBoard = Board()
     print("Player 1 is X")
-    user1 = input("Enter name : ")
-    r = input("\nEnter Y if your second player is a computer. N if you have a second player. ")
-    if r == 'Y':
-        print("Computer Player is O")
-        user2 = 'Computer'
-    else: 
-        user2 = input("Enter name : ")
+    print('Enter player 1\'s name: \n')
+    user1= input("Enter name : ")
 
+    while True: 
+        r = input("\nEnter Y if your second player is a computer. N if you have a second player. ")
+        if r == 'Y':
+            print("Computer Player is O")
+            user2 = 'Computer'
+            break
+        elif r=='N':
+            user2 = input("Enter name : ")
+            break
+        else: 
+            continue
     currUser, nextUser = user1, user2
     X, O = 'X','O'
     while True:
@@ -40,8 +46,7 @@ def main():
         X, O = O, X # switch turns while loop is unbroken
         currUser, nextUser = nextUser, currUser  # switch turns while loop is unbrokesn
     print('Game over! Thank you for playing. ')
-
-
+    
 class Board:
     def __init__(self): 
         self._grids = {} # private attr, dictionary
@@ -58,6 +63,10 @@ class Board:
       \t{self._grids['7']}|{self._grids['8']}|{self._grids['9']}  7 8 9\n\n\n'''
 
     def isValidInput(self, g):
+        return g in grids and self._grids[g] == ' ' #returns false
+        #check if user's input is a valid number from 1-9 and if the grid of that num is empty
+
+    def isValidUser(self, g):
         return g in grids and self._grids[g] == ' ' #returns false
         #check if user's input is a valid number from 1-9 and if the grid of that num is empty
 
