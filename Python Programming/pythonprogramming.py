@@ -1,8 +1,10 @@
-grids = [str(i) for i in range(1,10)]
 import random
+grids = [str(i) for i in range(1,10)]
+
 def main():
     count = 0
-    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\nYou have the option of playing against the computer or another human player. "
+    print("\nINSTRUCTIONS: \nPlayer 1 goes first and uses the 'X' mark.\n"
+    "You have the option of playing against the computer or another human player. "
         "\nSee numbers next to board for reference on where to place X or O.\n ")
     newBoard = Board()
     print("Player 1 is X")
@@ -46,15 +48,16 @@ def main():
         X, O = O, X # switch turns while loop is unbroken
         currUser, nextUser = nextUser, currUser  # switch turns while loop is unbrokesn
     print('Game over! Thank you for playing. ')
-    
+
 class Board:
-    def __init__(self): 
-        self._grids = {} # private attr, dictionary
+    
+    def __init__(self):
+        '''Initialize board object and assign it the attribute '_grids' ''' 
+        self._grids = {} 
         self._grids = dict.fromkeys(grids, ' ')
-       # for g in grids: # for 1-9 in the list 'grids', create a dictionary where _grids['3'] = ' ' is empty
         
     def getBoard(self):
-    # enclose variable within the {} to display, at beginning they are all empty
+        '''displays board'''
         return f'''
       \t{self._grids['1']}|{self._grids['2']}|{self._grids['3']}  1 2 3
       ---------
@@ -63,18 +66,26 @@ class Board:
       \t{self._grids['7']}|{self._grids['8']}|{self._grids['9']}  7 8 9\n\n\n'''
 
     def isValidInput(self, g):
-        return g in grids and self._grids[g] == ' ' #returns false
-        #check if user's input is a valid number from 1-9 and if the grid of that num is empty
-
-    def isValidUser(self, g):
-        return g in grids and self._grids[g] == ' ' #returns false
-        #check if user's input is a valid number from 1-9 and if the grid of that num is empty
+        '''  checks if user input is within 1-9  and if the grid on the board is empty.
+            Parameters:
+                    g (str): string representation of number (1-9)
+            Returns:
+                    boolean:  true or false'''
+        return g in grids and self._grids[g] == ' ' #
 
     def getComputerInput(self): 
+        ''' returns the computer input.
+            Returns:
+                    int:  a randomly sampled a key/pos where the grid is empty'''       
         emptyGrids = [k for k,v in self._grids.items() if v == ' ']
-        return random.sample(emptyGrids, 1)[0] #randomly sample a key//pos where the grid is empty
+        return random.sample(emptyGrids, 1)[0] 
 
     def checkWinning(self, user):
+        ''' checks if there is a winning player.
+            Parameters: 
+                user (str): X or O
+            Returns:
+                boolean:  true or false depending if there is a three X or O in a row''' 
         g = self._grids #get the dict containing all key-value pairs
         u = user #get the current user
         # e.g., check if g['2'] == 'X'
@@ -88,13 +99,21 @@ class Board:
                 (g['1'] == g['5'] == g['9'] == u))   # Diagonal
 
     def checkBoardFull(self):
+        ''' Checks if board is full.
+            Returns:
+                    boolean: true if all keys in _grids are filled by X or O, false if  at least one spot is empty  ''' 
         for g in grids: 
             if self._grids[g] == ' ':
                 return False 
-        return True #if all keys have a value, return true
+        return True 
 
     def updateBoard(self, g, user, c):
-        """Sets the space on the board to player."""
+        """Assign the mark O or X on the board, prints the number of current round.
+           Parameters: 
+                g (str): string rep of num 1-9
+                user (str): 'X' or 'O'
+                c (int): num of rounds
+                """
         self._grids[g] = user #set the value e.g., 'X' to a specific key '1'
         print("--------------------------")
         print(f'\tRound {c}')
