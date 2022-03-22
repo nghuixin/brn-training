@@ -1,0 +1,14 @@
+# Py4DS Review Round #1
+
+Commit reviewed: 
+
+Really good first attempt! Critiques are relatively minor, please address them as fully as possible and submit line-by-line response in a separate markdown document. 
+
+Critiques:
+1. You should include more detailed descriptions in the markdown blocks within the notebook. For example, why did you apply Pearson correlation in question 4? Were the asummptions of Pearson met? I think including more markdown (and code) to back up your statistical reasoning is important in places like this. Another example is your use of a linear regression in "More Questions: Question 2" -- why linear regression instead of a difference of means test such as t-test or anova? Moreover, you did not provide your answer to the question after running the regression. 
+2. The answer to "More Questions: Question 3" is correct in the plot, but incorrect in the markdown above it. 
+3. The answer to "More Questions: Question 4" is incorrect -- check your code for bugs and consider the assumptions made by your code about the data. I would be willing to accept a convincing argument that the wording of the question was vague enough to allow your answer, but you would need to include that argument in the markdown. 
+4. Each plot should have a title. Also consider whether your X and Y axes are appropriately scaled for your first two plots -- I would consider using a log scale here. Also make sure your axis labels are reader-friendly. For example the label on the second plot says "gdpPercap" -- I would change this to something like "GDP per capita (in dollars)" or something like that.
+
+**Note on Jupyter notebooks:** Jupyter notebooks tend to have severe limitations that hurt reproducibility, maintanability, flexibility, and scientific rigor (good summary of these issues: [link](https://docs.google.com/presentation/d/1n2RlMdmv1p25Xy5thJUhkKGvjtV-dkAIsUXP-AL4ffI/preview#slide=id.g362da58057_0_1)). While we are still using them a lot in python datasci/ML, we also encourage new trainees to consider using RMarkdown instead along with the RStudio IDE. RMarkdown + RStudio solves the key limitations of Jupyter notebooks and adds additional functionality, such as parametizable notebooks, self-reporting markdown sections with inline code, and beautiful HTML/PDF/Slideshow/web/etc outputs. Here is an example of a nice RMarkdown notebook if you have not seen one before: [link](https://rlbase-data.s3.amazonaws.com/reports/SRX1070676_hg38.html). Despite their names, both tools support python (along with other languages). In my day-to-day work, I use roughly 70% R and 30% python, but I do all coding in RStudio (even though I have Pro PyCharm and a JupyterLab server). 
+Anyways, just a suggestion for now -- it is unlikely we would switch our official standards on this for a while, if ever.
