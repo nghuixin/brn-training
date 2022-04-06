@@ -1,0 +1,19 @@
+---
+title: "RforDS"
+author: "Hui Xin Ng"
+date: "3/3/2022"
+output: html_document
+---
+```{r}
+setwd("C:/Users/huixin/OneDrive - UC San Diego/bioinformatics")
+library(tidyverse)
+library(corrr)
+library(lubridate)
+library("ggplot2")
+library(Seurat)
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+
+
+``` 
