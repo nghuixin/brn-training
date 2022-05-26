@@ -1,0 +1,177 @@
+---
+title: "R For Data Science"
+author: "Hui Xin Ng"
+date: '2022-05-24'
+output: html_document
+---
+
+```{r , message=FALSE, warning=FALSE}
+library(tidyverse)
+library(dplyr)
+library(reshape2)
+library(broom)
+library(plotly)
+setwd("C:/Users/hxng/OneDrive - UC San Diego/bioinformatics/brn-training/R for Data Science")
+#setwd("C:/Users/nghui/OneDrive - UC San Diego/bioinformatics/brn-training/R for Data Science")
+```
+
+```{r , message=FALSE, warning=FALSE}
+# read as tibble
+df <- read_csv(file = 'gapminder_clean.csv' )
+
+# rename columns
+names(df)[names(df) == 'CO2 emissions (metric tons per capita)'] <- "co2PerCap"
+names(df)[names(df) == "Energy use (kg of oil equivalent per capita)"] <- "energyUsePerCap"
+names(df)[names(df) == "Imports of goods and services (% of GDP)"] <- "importPercentageGDP"
+names(df)[names(df) =='Population density (people per sq. km of land area)']<- "popDensityPerSqKm"
+```
+#### Question 1 & Question 2
+
+
+After visualizing the original data, we see that there are some large values that are far from most of the smaller values which appear clustered/close to each other. It appears as a GPD per capita increases, CO2 emissions increases at a faster rate, up until the GDP per capital is at about 200,000. We cannot determine if the relationship between the x and y values are linear by just visualizing them.  
+
+However, given that the order of magnitude of both x and y values are large, we log transform both x (GDP) and y values (CO2).
+```{r, message=FALSE, warning=FALSE}
+
+df %>%
+  filter(Year == 1962)%>% 
+    ggplot(aes(y = co2PerCap, x = gdpPercap )) + theme_classic()+ geom_point(color="red") + labs(y = 'CO2 emissions (metric tons per capita)', x = 'GDP in purchasing power parity (USD per capita)') +ggtitle('GDP vs. CO2 emissions in 1962')
+
+df %>%
+  filter(Year == 1962)%>% 
+    ggplot(aes(y = log10(co2PerCap), x = log(gdpPercap) )) + theme_classic()+ geom_point(color="red") +ggtitle('log GDP vs. log CO2 emissions in 1962') +  xlab('log GDP in purchasing power parity (USD per capita)') + ylab('log CO2 emissions (metric tons per capita)')
+
+```
+
+#### Question 3
+The Pearson's correlation coefficient is 0.9 which indicates the strength of the relationship between the two variables. Log GDP is positively associated with log CO2 at r=0.9.
+```{r, message=FALSE, warning=FALSE}
+df <- df %>%
+  mutate(logCO2 = log10(co2PerCap), logGDP = log(gdpPercap))
+
+cor.test(x = df[["logCO2"]], y = df[["logGDP"]]) %>% tidy
+```
+
+#### Question 4
+Kendall's Tau correlation between CO2 emissions and GDP per capita is the highest during year 2002, at r=0.78.
+```{r, message=FALSE, warning=FALSE}
+df %>% 
+  group_by(Year) %>%
+  do(tidy(cor.test(.$co2PerCap, .$gdpPercap, alternative = 'two.sided', method = 'kendall'))) %>% 
+  arrange(desc(estimate)) %>% head(1)
+ 
+```
+
+
+#### Question 5
+```{r, message=FALSE, warning=FALSE} 
+
+fig <- df %>%
+  filter(Year ==2002) %>%
+  plot_ly(
+    x = ~logGDP, 
+    y = ~logCO2, 
+    size = ~pop, 
+    color = ~continent, 
+    #frame = ~Year, 
+    text = ~`Country Name`, 
+    hoverinfo = "text",
+    type = 'scatter',
+    mode = 'markers'
+  )
+
+fig <- fig %>% layout(
+    xaxis = list(
+      type = "log"
+    )
+  )
+fig <- fig %>% animation_opts(
+    1000, easing = "elastic", redraw = FALSE
+  )
+ 
+
+fig %>%
+  layout(title = 'log GDP vs. log CO2 emissions in 1962', plot_bgcolor = "#e5ecf6", xaxis = list(title = 'log CO2 Emissions'), 
+         yaxis = list(title = 'log GDP'), legend = list(title=list(text='<b> Continent </b>')))
+```
+ 
+
+## More Questions
+#### Question 1
+What is the relationship between between continent and 'Energy use (kg of oil equivalent per capita)'  
+
+We use the Kruskal-Wallis test because it is a non-parametric version of ANOVA. It does not assume normal distribution of residuals The test works on 2 or more independent samples, which may have different sizes.  
+```{r, message=FALSE, warning=FALSE} 
+ df %>% filter(!is.na(continent)) %>% 
+  kruskal.test(continent, energyUsePerCap) %>% tidy
+```
+
+#### Question 2
+Is there a significant difference between Europe and Asia with respect to 'Imports of goods and services (% of GDP)' in the years after 1990? We fit a linear regression model to compare the two groups.
+
+There is no significant difference between Europe and Asia with respect to the amount of imports of goods and services in terms percentage of GDP (p<0.05).
+
+While there are many candidate statistical tests we could use to compare the difference in the variable of interest between two groups, a simple linear regression is chosen, because:
+
+We can find out to what extent does the regressor (continent type) affects the regressand (imports of goods and services in terms of % of GDP).
+The null hypothesis is whether b1=0, where variable Continent = 1 if Europe, = 0 if Asia. y_hat = b0 + b1*Continent 
+ 
+
+A t-test would have also provided us the answer to the question above; linear regression provides the additional advantage of informing us to what extent a change from Asia=0 to Europe=1 affect outcome variable (imports of goods and services in terms of % of GDP), which is indicated by the beta weight, -5.056. 
+```{r, message=FALSE, warning=FALSE} 
+ mod <- df %>% 
+  filter(continent %in% c('Asia', 'Europe'), Year > 1990) %>% 
+  glm(importPercentageGDP ~ continent, data = .) %>% 
+  summary()
+mod
+```
+#### Question 3
+What is the country (or countries) that has the highest 'Population density (people per sq. km of land area)' across all years? (i.e., which country has the highest average ranking in this category across each time point in the dataset?
+
+The highest-rank country in terms of population density changes across the years, as we can tell from the graph below.
+
+To find out which country has the highest averaged ranking, we take the average of their ranks across the years based on their population density. Macao and Monaco are tied at the first place because their averaged ranking across the period 1962-2007 is the same.
+
+```{r, message=FALSE, warning=FALSE}
+df %>% 
+  select(Year, `Country Name`, popDensityPerSqKm) %>%
+  group_by(Year)  %>% 
+  arrange(Year, desc(popDensityPerSqKm)) %>% 
+  group_by(Year) %>%
+  slice(1:3) %>% ggplot(data=.,aes(x = as.factor(Year), y= popDensityPerSqKm, fill=as.factor(`Country Name`))) +   geom_bar(position="dodge", stat="identity") + theme_classic()+
+  labs(x = "Year", y = "population density (per sq.km)",fill = "Country") + ggtitle('Population density in the top 5 highest density countries in Years 1962-2007')
+
+```
+ 
+```{r, message=FALSE, warning=FALSE}
+
+df %>% 
+  select(Year, `Country Name`, popDensityPerSqKm) %>% 
+  arrange(Year, desc(popDensityPerSqKm)) %>% 
+  group_by(Year) %>%
+  slice(1:3)  %>%
+    mutate(ranks = order(order(popDensityPerSqKm, decreasing=TRUE))) %>% 
+   group_by(`Country Name`) %>%
+  summarize(mean.rank = mean(ranks))  
+
+```
+#### Question 4
+What country (or countries) has shown the greatest increase in 'Life expectancy at birth, total (years)' since 1962?
+
+The top 5 countries that has shown the greatest increase in life expectancy are:
+'Maldives', 'Bhutan', 'Timor-Leste', 'Tunisia', 'Oman'
+
+This answer is based on the absolute difference in life expectancy between year 2007 and year 1962.
+
+```{r, message=FALSE, warning=FALSE}
+
+ df %>%
+  select(Year, `Country Name`, `Life expectancy at birth, total (years)`) %>%
+  group_by(`Country Name`) %>%
+  dcast(`Country Name` ~ Year, value.var = "Life expectancy at birth, total (years)", fill = NA) %>%
+  mutate(diff = `2007` - `1962`) %>% 
+  arrange(desc(diff)) %>% 
+  head(5) %>% 
+  ggplot(aes(x = reorder(`Country Name`, -diff), y = diff)) +   geom_bar(position="dodge", stat="identity",fill="lightblue") + theme_classic() + ggtitle("Increase in Life Expectancy in Years (Period: 1962-2007)") + ylab("Years") + xlab("Country")  + geom_text(aes(label=round(diff, 2)), position=position_dodge(width=0.9), vjust=-0.25)
+
+```
