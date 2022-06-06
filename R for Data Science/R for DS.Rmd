@@ -95,7 +95,7 @@ res <- df %>%
   dplyr::slice_max(estimate, n = 1)
 res
 ```
-Kendall's Tau correlation between CO2 emissions and GDP per capita is the highest during year `r res$Year`, at r=`r round(res$estimate, 2)`. <br> 
+Kendall's Tau correlation was used since the two variables are not normally distributed, as we have seen from Question 1 when plotting the two variables.  Kendall's Tau correlation between CO2 emissions and GDP per capita is the highest during year `r res$Year`, at r=`r round(res$estimate, 2)`. <br> 
 
 #### Question 5
 ```{r, message=FALSE, warning=FALSE} 
@@ -119,10 +119,7 @@ fig <- fig %>% layout(
     type = "log"
   )
 )
-fig <- fig %>% animation_opts(
-  1000,
-  easing = "elastic", redraw = FALSE
-)
+ 
 
 
 fig %>%
