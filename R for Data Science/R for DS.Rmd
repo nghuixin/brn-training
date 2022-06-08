@@ -29,8 +29,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 
 # read as tibble
-df <- read_csv(file = "gapminder_clean.csv")
-style_file("R for DS.Rmd")
+df <- read_csv(file = "gapminder_clean.csv") 
 # rename columns
 df <- df %>%
   rename(
