@@ -98,6 +98,8 @@ res <- df %>%
     )
   ) %>%
   dplyr::slice_max(estimate, n = 1)
+
+
 res %>%
   kbl() %>%
   kable_styling()
@@ -130,7 +132,7 @@ fig <- fig %>% layout(
 
 fig %>%
   layout(
-    title = "log GDP vs. log CO2 emissions in ", plot_bgcolor = "#e5ecf6", xaxis = list(title = "log CO2 Emissions"),
+    title = paste0("log GDP vs. log CO2 emissions in ", res$Year), plot_bgcolor = "#e5ecf6", xaxis = list(title = "log CO2 Emissions"),
     yaxis = list(title = "log GDP"), legend = list(title = list(text = "<b> Continent </b>"))
   )
 ```
