@@ -16,7 +16,7 @@ output:
 list.of.packages <- c(
   "tidyverse", "dplyr",
   "styler", "reshape2",
-  "broom", "plotly"
+  "broom", "plotly", "kableExtra"
 )
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[, "Package"])]
 if (length(new.packages)) {
@@ -45,7 +45,8 @@ df <- df %>%
 ```
 ## Main Questions
 #### Question 1 & 2
-
+*Read the data as a pandas DataFrame.*
+*Filter the data to include only rows where Year is 1962 and then make a scatter plot comparing `CO2 emissions (metric tons per capita)` and `gdpPercap` for the filtered data.*
 ```{r, message=FALSE, warning=FALSE}
 
 df %>%
@@ -67,23 +68,27 @@ df %>%
   xlab("log GDP in purchasing power parity (USD per capita)") +
   ylab("log CO2 emissions (metric tons per capita)")
 ```
-<p>After visualizing the original data, we see that there are some large values that are far from most of the smaller values which appear clustered/close to each other. It appears as a GPD per capita increases, CO2 emissions increases at a faster rate, up until the GDP per capital is at about 200,000. We cannot determine if the relationship between the x and y values are linear by just visualizing them.</p>  
+After visualizing the original data, we see that there are some large values that are far from most of the smaller values which appear clustered/close to each other. It appears as a GPD per capita increases, CO2 emissions increases at a faster rate, up until the GDP per capital is at about 200,000. We cannot determine if the relationship between the x and y values are linear by just visualizing them.  
 
-<p>However, given that the order of magnitude of both x and y values are large, we log transform both x (GDP) and y values (CO2).</p><br>
- 
+However, given that the order of magnitude of both x and y values are large, we log transform both x (GDP) and y values (CO2).
+
 
 #### Question 3 
+*On the filtered data, calculate the pearson correlation of `CO2 emissions (metric tons per capita)` and `gdpPercap`. What is the Pearson R value and associated p value?*
 ```{r, message=FALSE, warning=FALSE}
 df <- df %>%
   mutate(logCO2 = log10(co2PerCap), logGDP = log(gdpPercap))
 
 mod <- cor.test(x = df$logCO2, y = df$logGDP) %>% tidy()
-mod
+mod %>%
+  kbl() %>%
+  kable_styling()
 ```
-<p> Pearson's correlation coefficient indicates the strength of the relationship between the two variables. Log GDP is positively associated with log CO2 at r=`r round(mod$estimate, 2)`.</p><br>
- 
+Pearson's correlation coefficient indicates the strength of the relationship between the two variables. **`logGDP` is positively associated with `logCO2 `at r=`r round(mod$estimate, 2)`**. 
+
 
 #### Question 4 
+*In what year is the correlation between `CO2 emissions (metric tons per capita)` and `gdpPercap` the strongest?*
 ```{r, message=FALSE, warning=FALSE}
 res <- df %>%
   group_by(Year) %>%
@@ -93,11 +98,14 @@ res <- df %>%
     )
   ) %>%
   dplyr::slice_max(estimate, n = 1)
-res
+res %>%
+  kbl() %>%
+  kable_styling()
 ```
-Kendall's Tau correlation was used since the two variables are not normally distributed, as we have seen from Question 1 when plotting the two variables.  Kendall's Tau correlation between CO2 emissions and GDP per capita is the highest during year `r res$Year`, at r=`r round(res$estimate, 2)`. <br> 
+Kendall's Tau correlation was used since the two variables are not normally distributed, as we have seen from Question 1 when plotting the two variables.  Kendall's Tau correlation between CO2 emissions and GDP per capita is **the highest during year `r res$Year`, at r=`r round(res$estimate, 2)`**.  
 
 #### Question 5
+*Using plotly or bokeh, create an interactive scatter plot comparing `CO2 emissions (metric tons per capita)` and `gdpPercap`.*
 ```{r, message=FALSE, warning=FALSE} 
 
 fig <- df %>%
@@ -119,12 +127,10 @@ fig <- fig %>% layout(
     type = "log"
   )
 )
- 
-
 
 fig %>%
   layout(
-    title = "log GDP vs. log CO2 emissions in 2002", plot_bgcolor = "#e5ecf6", xaxis = list(title = "log CO2 Emissions"),
+    title = "log GDP vs. log CO2 emissions in ", plot_bgcolor = "#e5ecf6", xaxis = list(title = "log CO2 Emissions"),
     yaxis = list(title = "log GDP"), legend = list(title = list(text = "<b> Continent </b>"))
   )
 ```
@@ -133,81 +139,93 @@ The interactive plot above depicts the relationship between CO2 emissions and GD
 ## More Questions
 #### Question 1
 
-<p> What is the relationship between between continent and 'Energy use (kg of oil equivalent per capita)'? </p> 
+*What is the relationship between between continent and `Energy use (kg of oil equivalent per capita)`?*  
 ```{r, message=FALSE, warning=FALSE} 
 res <- df %>%
   filter(!is.na(continent)) %>%
   kruskal.test(continent, energyUsePerCap) %>%
   tidy()
-```
-<p> We use the Kruskal-Wallis test because it is a non-parametric version of ANOVA. It does not assume normal distribution of residuals The test works on 2 or more independent samples, which may have different sizes.</p>  
 
-There is a significant relationship between continent and energy use, as the p-value is smaller than the significant threshold, which we set at 0.05. 
-The p-value is negligible because it is very close to `r res$p.value`. <br>
+res %>%
+  kbl() %>%
+  kable_styling()
+```
+ We use the Kruskal-Wallis test because it is a non-parametric version of ANOVA. It does not assume normal distribution of residuals The test works on 2 or more independent samples, which may have different sizes.  
+
+There is a **significant relationship between continent and energy use**, as the p-value is smaller than the significant threshold, which we set at 0.05. 
+The p-value is negligible because it is very close to `r res$p.value`. 
 
 
 #### Question 2
-<p> Is there a significant difference between Europe and Asia with respect to 'Imports of goods and services (% of GDP)' in the years after 1990? </p> 
+*Is there a significant difference between Europe and Asia with respect to `Imports of goods and services (% of GDP)` in the years after 1990?*
 ```{r, message=FALSE, warning=FALSE} 
 mod <- df %>%
   filter(continent %in% c("Asia", "Europe"), Year > 1990) %>%
   glm(importPercentageGDP ~ continent, data = .) %>%
   tidy()
 
-mod
+mod %>%
+  kbl() %>%
+  kable_styling()
 ```
-<p> While there are many candidate statistical tests we could use to compare the difference in the variable of interest between two groups, a simple linear regression is chosen, because:</p>
+While there are many candidate statistical tests we could use to compare the difference in the variable of interest between two groups, a simple linear regression is chosen, because:
 
-<p> We can find out to what extent does the regressor (continent type) affects the regressand (imports of goods and services in terms of % of GDP). </p>
+We can find out to what extent does the regressor (continent type) affects the regressand (imports of goods and services in terms of % of GDP). 
 
 \begin{equation}
 Y_i = \beta_0 + \beta_1 continent  + \epsilon_i
 \end{equation}
 
-<p>The null hypothesis is whether $\beta_{1}$ = 0, where variable Continent = 1 if Europe, = 0 if Asia.</p>  
-  
-<p> We fit a linear regression model to compare the two groups.  There is no significant difference between Europe and Asia with respect to the amount of imports of goods and services in terms percentage of GDP (p<0.05).</p> 
+The null hypothesis is whether $\beta_{1}$ = 0, where variable Continent = 1 if Europe, = 0 if Asia.  
 
-<p> A t-test would have also provided us the answer to the question above; linear regression provides the additional advantage of informing us to what extent a change from Asia=0 to Europe=1 affect outcome variable (imports of goods and services in terms of % of GDP), which is indicated by the beta weight, `r round(mod$estimate[2], 2)`. </p><br> 
+We fit a linear regression model to compare the two groups.  There is **no significant difference between Europe and Asia with respect to the amount of imports of goods and services in terms percentage of GDP (p<0.05)**. 
+
+A t-test would have also provided us the answer to the question above; linear regression provides the additional advantage of informing us to what extent a change from Asia=0 to Europe=1 affect outcome variable (imports of goods and services in terms of % of GDP), which is indicated by the beta weight, `r round(mod$estimate[2], 2)`.  
 
 #### Question 3  
-<p> What is the country (or countries) that has the highest 'Population density (people per sq. km of land area)' across all years? (i.e., which country has the highest average ranking in this category across each time point in the dataset? </p>
+*What is the country (or countries) that has the highest `Population density (people per sq. km of land area)` across all years? (i.e., which country has the highest average ranking in this category across each time point in the dataset?* 
 
 ```{r, message=FALSE, warning=FALSE}
 df %>%
   select(Year, `Country Name`, popDensityPerSqKm) %>%
   arrange(Year, desc(popDensityPerSqKm)) %>%
   group_by(Year) %>%
-  slice(1:3) %>%
+  dplyr::slice_max(popDensityPerSqKm, n = 3) %>%
   ggplot(data = ., aes(x = as.factor(Year), y = popDensityPerSqKm, fill = as.factor(`Country Name`))) +
   geom_bar(position = "dodge", stat = "identity") +
   theme_classic() +
   labs(x = "Year", y = "population density (per sq.km)", fill = "Country") +
   ggtitle("Population density in the top 5 highest density countries in Years 1962-2007")
 ```
- 
+
 ```{r, message=FALSE, warning=FALSE} 
 res <- df %>%
   select(Year, `Country Name`, popDensityPerSqKm) %>%
   arrange(Year, desc(popDensityPerSqKm)) %>%
   group_by(Year) %>%
-  slice(1:3) %>%
   mutate(
     rnks = row_number(desc(popDensityPerSqKm))
   ) %>%
   group_by(`Country Name`) %>%
-  summarize(mean.rank = mean(rnks))
- 
-```
-The highest-rank country in terms of population density changes across the years, as we can tell from the graph above
+  summarize(mean.rank = mean(rnks)) %>%
+  slice_min(mean.rank, n = 3)
 
-To find out which country has the highest averaged ranking, we take the average of their ranks across the years based on their population density. `r res$"Country Name"` are tied at the first place because their averaged ranking across the period 1962-2007 is the same at `r min(res$"mean.rank)"`. <br> 
+country1 <- res$`Country Name`[1]
+country2 <- res$`Country Name`[2]
+
+res %>%
+  kbl() %>%
+  kable_styling()
+```
+The highest-rank country in terms of population density changes across the years, as we can tell from the graph above.  
+
+To find out which country has the highest averaged ranking, we take the average of their ranks across the years based on their population density. **`r res$"Country Name"[1]` and `r res$"Country Name"[2]` are tied at the first place** because their averaged ranking across the period 1962-2007 is the same at `r min(res$"mean.rank")`.  
 
 
 
 #### Question 4
-<p>What country (or countries) has shown the greatest increase in 'Life expectancy at birth, total (years)' since 1962? </p>  
- 
+*What country (or countries) has shown the greatest increase in `Life expectancy at birth, total (years)` since 1962? *  
+
 ```{r, message=FALSE, warning=FALSE} 
 res <- df %>%
   select(Year, `Country Name`, `Life expectancy at birth, total (years)`) %>%
@@ -218,7 +236,9 @@ res <- df %>%
   ) %>%
   dplyr::slice_max(diff, n = 5)
 
-res
+res %>%
+  kbl() %>%
+  kable_styling()
 ```
 
 ```{r}
@@ -231,8 +251,8 @@ res %>%
   xlab("Country") +
   geom_text(aes(label = round(diff, 2)), position = position_dodge(width = 0.9), vjust = -0.25)
 ```
-<p>From the graph above, we see that the top 5 countries that has shown the greatest increase in life expectancy are:
-`r res$"Country Name"`</p>  
+From the graph above, we see that the top 5 countries that has shown the greatest increase in life expectancy are:
+**`r res$"Country Name"`**  
 
-<p>This answer is based on the absolute difference in life expectancy between year 2007 and year 1962. </p>  
+This answer is based on the absolute difference in life expectancy between year 2007 and year 1962.   
 
