@@ -252,6 +252,8 @@ res %>%
   xlab("Country") +
   geom_text(aes(label = round(diff, 2)), position = position_dodge(width = 0.9), vjust = -0.25)
 ```
+
+
 From the graph above, we see that the top 5 countries that has shown the greatest increase in life expectancy are:
 **`r res$"Country Name"`**  
 
