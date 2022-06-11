@@ -67,6 +67,8 @@ df %>%
   xlab("log GDP in purchasing power parity (USD per capita)") +
   ylab("log CO2 emissions (metric tons per capita)")
 ```
+
+
 After visualizing the original data, we see that there are some large values that are far from most of the smaller values which appear clustered/close to each other. It appears as a GPD per capita increases, CO2 emissions increases at a faster rate, up until the GDP per capital is at about 200,000. We cannot determine if the relationship between the x and y values are linear by just visualizing them.  
 
 However, given that the order of magnitude of both x and y values are large, we log transform both x (GDP) and y values (CO2).
