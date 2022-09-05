@@ -199,6 +199,7 @@ play <- function() {
         cat(player2, "has won.")
         break
       }
+      
     }
   }
   options(warn = defaultW) # suppress warning
