@@ -17,6 +17,7 @@ Commit Reviewed: <https://github.com/nghuixin/brn-training/commit/00c9d00a706c34
 
     - You aren't asked to make the game PvP, it is good that you added an extra feature but it isn't required. <https://github.com/nghuixin/brn-training/blame/00c9d00a706c3492ab75d151e6b36d4713691304/R%20Programming/ttt.R#L110-L159>
     Right now the game doesn't work properly.
+
 **Response**: 
 - I have kept the PvP mode and have made the necessary modifications. 
 
@@ -27,7 +28,8 @@ Commit Reviewed: <https://github.com/nghuixin/brn-training/commit/00c9d00a706c34
     You can use the resources mentioned below to improve the same:
     - <https://rstudio-pubs-static.s3.amazonaws.com/390511_286f47c578694d3dbd35b6a71f3af4d6.html>
     - <https://style.tidyverse.org/> The `styler` and `lintr` packages can be used to help with code formatting.
-    - <https://stackoverflow.blog/2021/12/23/best-practices-for-writing-code-comments/>
+    - <https://stackoverflow.blog/2021/12/23/best-practices-for-writing-code-comments/>  
+    
 **Response**: 
 - `styler` has been applied. 
 
