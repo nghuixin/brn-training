@@ -15,7 +15,7 @@ hello_world.txt for ls my_folder2
 my_folder:
 my_folder2:
 my_folder3:
-hello_world.txt ```
+hello_world.txt```
 
 - Q5. What editor did you use and what was the command to save your file changes?
 n
