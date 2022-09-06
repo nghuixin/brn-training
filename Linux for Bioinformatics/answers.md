@@ -1,3 +1,5 @@
+### Answers to Linux for Bioinformatics training req
+
 - Q1. What is your home directory?
 ```/home/ubuntu```
 
