@@ -56,9 +56,10 @@ After running ```mamba create -n salmonEnv=1.4.0 -c bioconda -c conda-forge``` a
 - **Q13**. What is the output of which python now?  
 ```/home/serveruser/miniconda3/bin/python```
 
-- **Q14**. What is the output of salmon -h?    
-```salmon v1.4.0
-
+- **Q14**. What is the output of salmon -h? 
+     
+```
+salmon v1.4.0
 Usage: salmon -h|--help or
     salmon -v|--version or
     salmon -c|--cite or
