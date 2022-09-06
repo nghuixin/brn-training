@@ -68,7 +68,8 @@ Commands:
    quant   : quantify a sample
    alevin  : single cell analysis
    swim   : perform super-secret operation
-   quantmerge : merge multiple quantifications into a single file```
+   quantmerge : merge multiple quantifications into a single file
+```
 
 - Q15. What does -o athal.fa.gz do?
 ```-o denotes the name the output file should be saved as.```
