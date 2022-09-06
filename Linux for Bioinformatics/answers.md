@@ -99,11 +99,11 @@ SRR074122.sra is the downloaded file, and it is in `.sra` format. SRA is the nat
 ```/dev/root   7.6G 5.1G 2.5G 68% /```  
 The total size of disk is 7.6G, and there is only 2.5G remaining.
 
--  Q25. What went wrong?
-The error produced is   ```storage exhausted while writing file within file system module``
+-  Q25. What went wrong?  
+The error produced is   ```storage exhausted while writing file within file system module```
 This is due to the fact that FASTQ files are pure ASCII and very large, and there is not enough disk space.  
 
-- Q26: What was your solution? Hint: consider Q16.
+- *Q26*: What was your solution? Hint: consider Q16.  
 In order to solve that problem, I used the following comamnd:
 (base) serveruser@ip-172-31-28-63:~$ ```parallel-fastq-dump --sra-id SRR074122 --threads 8 --split-files --gzip```
 ```parallel-fastq-dump``` is a wrapper to ```fastq-dump```, which makes it run parallelly. By doing so, it splits the file based on number of threads, which is 8 here, and runs fastq-dump parallelly. The results are concatanated after each thread is done. The  `--gzip` option is important here because it compresses the output using gzip. This reduces the space taken up on the disk. 
