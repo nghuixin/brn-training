@@ -29,7 +29,7 @@ No supported authentication methods available (server sent: publickey)
 I followed instructions here: https://aws.amazon.com/premiumsupport/knowledge-center/new-user-accounts-linux-instance/
 Essentially, I created a .ssh directory in the new sudouser home directory
 and used chmod to 700 which allows sudouser to read, write and open the .ssh directiory.
-Next I created the authorized_keys file and copied the public key displayed when I ran  ```ssh-keygen -y -f brn_training_ubuntu.pem``` on my local computer. brn_training_ubuntu.pem is the key pair file I had created earlier to connect to my EC2 instance.
+Next I created the authorized_keys file and copied the public key displayed when I ran  ```ssh-keygen -y -f brn_training_ubuntu.pem``` on my local computer. brn_training_ubuntu.pem is the key pair file I had created earlier to connect to my EC2 instance. The generated public key was then pasted into `.ssh/authorized_keys` inside the `serveruser` directory. Using the `serveruser` username we can now login into the server using the same procedure as the `sudouser`. 
 
 - **Q8**. what does the sudo docker run do?    
 sudo docker run runs the command 'docker run' using root privileges.
