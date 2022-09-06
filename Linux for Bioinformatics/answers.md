@@ -1,21 +1,21 @@
 ### Answers to Linux for Bioinformatics training req
 
-- Q1. What is your home directory?
+- Q1. What is your home directory?  
 ```/home/ubuntu```
 
-- Q2. What is the output of this command?
+- Q2. What is the output of this command?  
 ```hello_world.txt```
 
-- Q3. What is the output of each ls command?
+- Q3. What is the output of each ls command?    
 No output for ls my_folder
 hello_world.txt for ls my_folder2
 
-- Q4. What is the output of each?
- ls my_folder my_folder2 my_folder3 
+- Q4. What is the output of each?  
+```ls my_folder my_folder2 my_folder3 
 my_folder:
 my_folder2:
 my_folder3:
-hello_world.txt 
+hello_world.txt ```
 
 - Q5. What editor did you use and what was the command to save your file changes?
 n
