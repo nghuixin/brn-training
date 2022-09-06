@@ -15,44 +15,47 @@ hello_world.txt for ls my_folder2
 my_folder:
 my_folder2:
 my_folder3:
-hello_world.txt```
+hello_world.txt
+```
 
 - Q5. What editor did you use and what was the command to save your file changes?
 n
 
-- Q6. What is the error?
-Server refused our key
+- Q6. What is the error?  
+```Server refused our key
 No supported authentication methods available (server sent: publickey)
+```
 
-- Q7. What was the solution?
+- Q7. What was the solution?  
 I followed instructions here: https://aws.amazon.com/premiumsupport/knowledge-center/new-user-accounts-linux-instance/
 Essentially, I created a .ssh directory in the new sudouser home directory
 and used chmod to 700 which allows sudouser to read, write and open the .ssh directiory.
 Next I created the authorized_keys file and copied the public key displayed when I ran  ```ssh-keygen -y -f brn_training_ubuntu.pem``` on my local computer. brn_training_ubuntu.pem is the key pair file I had created earlier to connect to my EC2 instance.
 
-- Q8. what does the sudo docker run do?
+- Q8. what does the sudo docker run do?  
 sudo docker run runs the command 'docker run' using root privileges.
 The docker run part of the command creates a container layer over an image and then starts container.
 According to the commands list, salmon swim
 performs super-secret operation
 
-- Q9. What is the output of this command?
+- Q9. What is the output of this command?  
 sudo ls /root returns the output:
 serveruser is not in the sudoers file. This incident will be reported.
 
-- Q10. What is the output of flask --version?
-Python 3.9.12
+- Q10. What is the output of flask --version?  
+```Python 3.9.12
 Flask 2.1.3
 Werkzeug 2.0.3
-
+```
 - Q11. What is the output of mamba -V?
-conda 4.14.0
+```conda 4.14.0```
 
-- Q12. What is the output of which python?
-/home/serveruser/miniconda3/envs/py27/bin/python
+- Q12. What is the output of which python?  
+After running ```mamba create -n salmonEnv=1.4.0 -c bioconda -c conda-forge``` and then ```mamba activate salmonEnv```. we get the output:  
+```/home/serveruser/miniconda3/envs/py27/bin/python```
 
 - Q13. What is the output of which python now?
-/home/serveruser/miniconda3/bin/python
+```/home/serveruser/miniconda3/bin/python```
 
 - Q14. What is the output of salmon -h?
 salmon v1.4.0
