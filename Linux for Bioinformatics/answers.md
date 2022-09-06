@@ -17,10 +17,9 @@ my_folder2:
 my_folder3:
 hello_world.txt
 ```
-
-- **Q5**. What editor did you use and what was the command to save your file changes?
-n
-
+- **Q5**. What editor did you use and what was the command to save your file changes?  
+I did not see this question before deleting the ubuntu user and now I cannot write the files in the ubuntu directory.  I have added the `hello_world.txt` to `home/sudouser` and made the changes.  The editor I used is `nano`. `Ctrl+S` is used to save the changes and  `Ctrl+X` is used to exit the file.   
+ 
 - **Q6**. What is the error?  
 ```Server refused our key
 No supported authentication methods available (server sent: publickey)
@@ -104,6 +103,6 @@ The error produced is   ```storage exhausted while writing file within file syst
 This is due to the fact that FASTQ files are pure ASCII and very large, and there is not enough disk space.  
 
 - **Q26**: What was your solution? Hint: consider Q16.  
-In order to solve that problem, I used the following comamnd:
-(base) serveruser@ip-172-31-28-63:~$ ```parallel-fastq-dump --sra-id SRR074122 --threads 8 --split-files --gzip```
+In order to solve that problem, I used the following comamnd:  
+```parallel-fastq-dump --sra-id SRR074122 --threads 8 --split-files --gzip```
 ```parallel-fastq-dump``` is a wrapper to ```fastq-dump```, which makes it run parallelly. By doing so, it splits the file based on number of threads, which is 8 here, and runs fastq-dump parallelly. The results are concatanated after each thread is done. The  `--gzip` option is important here because it compresses the output using gzip. This reduces the space taken up on the disk. 
