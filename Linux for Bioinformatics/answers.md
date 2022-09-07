@@ -1,4 +1,4 @@
-### Answers to Linux for Bioinformatics training req
+### Answers to Linux CLI (Bash / Shell) for Bioinformatics
 
 - **Q1**. What is your home directory?  
 ```/home/ubuntu```
