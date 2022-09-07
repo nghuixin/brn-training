@@ -1,0 +1,59 @@
+---
+title: "RNASeq_Analysis"
+author: "Hui Xin Ng"
+date: "2022-09-06"
+output: html_document
+---
+ 
+## R Markdown
+ 
+
+```{r  , echo=FALSE}
+list_of_pkgs <- c("tidyr", "dplyr", "DESeq2")
+install.packages(list_of_pkgs[! list_of_pkgs %in% rownames(installed.packages())])
+library(tidyr)
+library(dplyr)
+library(DESeq2)
+
+df2 <- read.table("GSE53239_HGB11-22_transcriptLevel_eXpressCountData.txt.gz", stringsAsFactors = FALSE, sep = "", header = TRUE)
+df1 <- read.table("GSE53239_HGB1-10_transcriptLevel_eXpressCountData.txt.gz", stringsAsFactors = FALSE, sep = "", header = TRUE)
+ 
+#df1 <- read.table("GSE53239_HGB1-10_geneLevel_HTSeqCountData.txt.gz", stringsAsFactors = FALSE, sep = "", header = TRUE)
+#df2 <- read.table("GSE53239_HGB11-22_geneLevel_HTSeqCountData.txt.gz", stringsAsFactors = FALSE, sep = "", header = TRUE)
+
+sample_info <- read.csv("sample_info.csv")
+sample_info <- separate(sample_info, group, into = c("group", "sampleID"), sep = " ")
+sample_info <- sample_info %>% filter(sampleID != 'HGB_5')
+
+rownames(sample_info) <- sample_info$sampleID
+sample_info$sampleID <- NULL
+
+sample_info <- sample_info%>% select(group)
+
+rownames(df1) <- df1$transcriptID 
+rownames(df2) <- df2$transcriptID
+df2$transcriptID <- NULL
+df1$transcriptID <- NULL
+
+df <- merge(df1, df2,  by = 'row.names', all = TRUE)
+rownames(df) <- df$Row.names
+df$Row.names <- NULL
+
+df <- df %>% 
+    mutate(. = na_if(., 0))  %>% 
+  mutate_if(is.numeric, round)
+
+df <- df %>% replace(is.na(.), 0)
+```
+
+```{r}
+all(colnames(df) %in% rownames(sample_info))
+
+# are they in the same order?
+all(colnames(df) == rownames(sample_info))
+```
+
+```{r}
+dds <- DESeqDataSetFromMatrix(countData = df, colData = sample_info, design = ~group)
+```
+ 
