@@ -38,8 +38,7 @@ According to the commands list, `salmon swim` performs `super-secret operation`
 
 - **Q9**. What is the output of this command?  
 sudo ls /root returns the output:
-```serveruser is not in the sudoers file. This incident will be reported.
-```
+`serveruser is not in the sudoers file. This incident will be reported.`
 
 - **Q10**. What is the output of flask --version?  
 ```Python 3.9.12
