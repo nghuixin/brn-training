@@ -82,8 +82,8 @@ checkValidInput <- function(board, mark) {
     cat("Where would you like to place ", mark, "? (1-9) ")
     pos <- as.numeric(readLines(con = con, n = 1))
     if (!pos %in% seq(1:9) || board[pos] == "o" || board[pos] == "x") {
-      cat("This position is already marked or is an invalid value.\n
-          Please enter another number:")
+      cat("This position is already marked or is an invalid value.\n" , 
+            "Please enter another number: ")
       next()
     } else {
       break()
