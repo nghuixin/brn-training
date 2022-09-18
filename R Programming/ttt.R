@@ -7,8 +7,7 @@ if (interactive()) {
 } else {
   con <- "stdin"
 }
-
-
+ 
 # create board as a list of characters
 board <- as.character(matrix(
   data = 1:9, nrow = 3, ncol = 3, byrow = FALSE,
@@ -95,10 +94,11 @@ checkValidInput <- function(board, mark) {
 # checks if user wants to play with the computer or another user
 # @param mode - 'Y(y)' or 'N(n)'
 # returns
-checkPlayerMode <- function(mode) {
+checkPlayerMode <- function() {
   while (TRUE) {
     
-    # capsMode <- toupper(mode)
+    cat("Enter 'Y' to play with computer or 'N' for the two-player mode. ")
+    mode <- readLines(con = con, n = 1)
     if (!mode %in% c("Y", "N", "y", "n")) { # check if the input is valid
       cat("Please enter 'Y'or 'N' only,\n ")
       next()
@@ -106,26 +106,38 @@ checkPlayerMode <- function(mode) {
       break()
     }
   }
-  return((mode))
+  return(mode)
 }
 
 
-
+chooseSymbol <- function(symbol) {
+  while(TRUE){
+    cat("Please choose a symbol to start the game. X or O? ")
+    symbol <- readLines(con = con, n = 1)
+    capSymbol <- toupper(symbol)
+    if (capSymbol != "O" & capSymbol != "X"){
+      cat("Invalid character. Please pick from X or O.", "\n")
+      next()
+    } else{
+      return(capSymbol)
+      break
+    }
+  }
+ # return(symbol)
+}
 
 
 # Intialize game
 play <- function() {
-  cat("Enter 'Y' to play with computer or 'N' for the two-player mode. ")
-  mode <- readLines(con = con, n = 1)
-  if (checkPlayerMode(mode) %in% c("Y", "y")) { # If playing with computer
-    
-    
+  
+  if (chooseSymbol() == 'O') {
+    cat("You've chosen to go second. ")
     while (checkIfWinnerExist(board) == F) {
       
       # the computer make a move first and the board is shown afterwards
       comp <- "x"
       board <- computerMove(board, comp)
-      Sys.sleep(2)
+      Sys.sleep(0.5)
       showBoard(board)
       
       
@@ -134,70 +146,109 @@ play <- function() {
         break
       }
       
-      # if all spaces in board are occupied and there are no winners, break loop and display msg
-      if (sum(board == "x") + sum(board == "o") == 9 && checkIfWinnerExist(board) == F) {
+      # if all spaces in board are occupied and there are no winners, 
+      # break loop and display msg
+      if (sum(board == "x") + sum(board == "o") == 9 
+          && checkIfWinnerExist(board) == F) {
         cat("It is a tie!.")
         break
-      }
-      
+      } 
       # the human player's move is recorded and the board is shown afterwards
       human <- "o"
       humanPos <- checkValidInput(board, human)
       board <- playerMove(board, human, humanPos)
-      Sys.sleep(2)
+      Sys.sleep(0.5)
       showBoard(board)
       
       if (checkIfWinnerExist(board) == T) {
         cat("Player o has won.")
         break
       }
-    } # close while loop for playing with comp mode
-  } else if (checkPlayerMode(mode) %in% c("N", "n")) { # If not playing with computer
-    
-    # Assign the first player as X
-    cat("What is Player 1's name? ")
-    player1 <- readLines(con = con, n = 1)
-    cat(player1, "will play as Player X. ")
-    
-    # Assign the second player as O
-    cat("What is Player 2's name? ")
-    player2 <- readLines(con = con, n = 1)
-    cat(player2, "will play as Player O. ")
-    
-    
-    showBoard(board)
-    # While winner does not exist
+      
+    }
+  } 
+  
+  if (chooseSymbol() == 'X') {
+    cat("You've chosen to go first. ")
     while (checkIfWinnerExist(board) == F) {
-      # record input from player 1 and show on board
-      p1 <- "x"
-      p1Pos <- checkValidInput(board, p1)
-      board <- playerMove(board, p1, p1Pos)
-      checkIfWinnerExist(board)
-      showBoard(board)
       
-      if (checkIfWinnerExist(board) == T) { # if winner exists, end game
-        cat(player1, "has won.")
-        break
-      }
-      
-      # if there is a tie, end the game
-      if (sum(board == "x") + sum(board == "o") == 9 && checkIfWinnerExist(board) == F) {
-        cat("It is a tie!.")
-        break
-      }
-      
-      # record input from second player and show board
-      p2 <- "o"
-      p2Pos <- checkValidInput(board, p2)
-      board <- playerMove(board, p2, p2Pos)
+      # the human player's move is recorded and the board is shown afterwards
+      human <- "x"
+      humanPos <- checkValidInput(board, human)
+      board <- playerMove(board, human, humanPos)
+      Sys.sleep(0.5)
       showBoard(board)
       
       if (checkIfWinnerExist(board) == T) {
-        cat(player2, "has won.")
+        cat("Player x has won.")
         break
       }
-    }
-  }
+      # if all spaces in board are occupied and there are no winners, 
+      # break loop and display msg
+      if (sum(board == "x") + sum(board == "o") == 9 
+          && checkIfWinnerExist(board) == F) {
+        cat("It is a tie!.")
+        break
+      } 
+      # the computer make a move first and the board is shown afterwards
+      comp <- "o"
+      board <- computerMove(board, comp)
+      Sys.sleep(0.5)
+      showBoard(board)
+       
+      if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
+        cat("The computer has won.")
+        break
+      } 
+    } # close while loop for playing with comp mode
+  } 
+  # else if (checkPlayerMode() %in% c("N", "n")) { # If not playing with computer
+  #   
+  #   # Assign the first player as X
+  #   cat("What is Player 1's name? ")
+  #   player1 <- readLines(con = con, n = 1)
+  #   cat(player1, "will play as Player X. ")
+  #   
+  #   # Assign the second player as O
+  #   cat("What is Player 2's name? ")
+  #   player2 <- readLines(con = con, n = 1)
+  #   cat(player2, "will play as Player O. ")
+  #   
+  #   
+  #   showBoard(board)
+  #   # While winner does not exist
+  #   while (checkIfWinnerExist(board) == F) {
+  #     # record input from player 1 and show on board
+  #     p1 <- "x"
+  #     p1Pos <- checkValidInput(board, p1)
+  #     board <- playerMove(board, p1, p1Pos)
+  #     checkIfWinnerExist(board)
+  #     showBoard(board)
+  #     
+  #     if (checkIfWinnerExist(board) == T) { # if winner exists, end game
+  #       cat(player1, "has won.")
+  #       break
+  #     }
+  #     
+  #     # if there is a tie, end the game
+  #     if (sum(board == "x") + sum(board == "o") == 9 
+  #         && checkIfWinnerExist(board) == F) {
+  #       cat("It is a tie!.")
+  #       break
+  #     }
+  #     
+  #     # record input from second player and show board
+  #     p2 <- "o"
+  #     p2Pos <- checkValidInput(board, p2)
+  #     board <- playerMove(board, p2, p2Pos)
+  #     showBoard(board)
+  #     
+  #     if (checkIfWinnerExist(board) == T) {
+  #       cat(player2, "has won.")
+  #       break
+  #     }
+  #   }
+  # }
   options(warn = defaultW) # suppress warning
 }
 
