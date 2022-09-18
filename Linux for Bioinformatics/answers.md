@@ -1,4 +1,4 @@
-### Answers to Linux for Bioinformatics training req
+### Answers to Linux CLI (Bash / Shell) for Bioinformatics
 
 - **Q1**. What is your home directory?  
 ```/home/ubuntu```
@@ -7,8 +7,8 @@
 ```hello_world.txt```
 
 - **Q3**. What is the output of each ls command?    
-No output for ls my_folder
-hello_world.txt for ls my_folder2
+No output for `ls my_folder`  
+`hello_world.txt` for `ls my_folder2`
 
 - **Q4**. What is the output of each?  
 ```ls my_folder my_folder2 my_folder3 
@@ -32,14 +32,13 @@ and used chmod to 700 which allows sudouser to read, write and open the .ssh dir
 Next I created the authorized_keys file and copied the public key displayed when I ran  ```ssh-keygen -y -f brn_training_ubuntu.pem``` on my local computer. brn_training_ubuntu.pem is the key pair file I had created earlier to connect to my EC2 instance. The generated public key was then pasted into `.ssh/authorized_keys` inside the `serveruser` directory. Using the `serveruser` username we can now login into the server using the same procedure as the `sudouser`. 
 
 - **Q8**. what does the sudo docker run do?    
-sudo docker run runs the command 'docker run' using root privileges.
+`sudo docker run` runs the command 'docker run' using root privileges.
 The docker run part of the command creates a container layer over an image and then starts container.
-According to the commands list, salmon swim
-performs super-secret operation
+According to the commands list, `salmon swim` performs `super-secret operation`
 
 - **Q9**. What is the output of this command?  
-sudo ls /root returns the output:
-serveruser is not in the sudoers file. This incident will be reported.
+`sudo ls /root` returns the output:
+`serveruser is not in the sudoers file. This incident will be reported.`
 
 - **Q10**. What is the output of flask --version?  
 ```Python 3.9.12
@@ -88,7 +87,7 @@ It is used to view the contents of a compressed file without literally uncompres
 `100` is the number of lines displayed. 
 
 - **Q20**. What is `|` doing? -- Hint using | in Linux is called "piping".  
-The Pipe command is used to transfer the output of a command to another command. In other words the output of one command will act as input to another command, and this command output will act as input to the subsequent command.  
+The Pipe command is used to transfer the output of a command to another command. In other words the output of one command will act as input to another command, and this command output will act as input to the subsequent commanda.  
 
 - **Q21**. What is a .`fa` file? What is this file format used for?  
 `.fa` stands for FASTA Formatted Sequence File. This file extension is typically used for a special FASTA DNA format.
