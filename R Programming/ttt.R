@@ -79,11 +79,11 @@ computerMove <- function(board, mark) {
 # returns the numeric input
 checkValidInput <- function(board, mark) {
   while (TRUE) {
-    cat("Where would you like to place ", mark, "? (1-9) ")
+    cat("Where would you like to place ", mark, "? (1-9)\n")
     pos <- as.numeric(readLines(con = con, n = 1))
     if (!pos %in% seq(1:9) || board[pos] == "o" || board[pos] == "x") {
       cat("This position is already marked or is an invalid value.\n" , 
-            "Please enter another number: ")
+            "Please enter another number.\n")
       next()
     } else {
       break()
@@ -95,7 +95,7 @@ checkValidInput <- function(board, mark) {
 
 chooseSymbol <- function(symbol) {
   while (TRUE) {
-    cat("Please choose a symbol to start the game.\n X or O? ")
+    cat("Please choose a symbol to start the game.\n X or O?")
     symbol <- readLines(con = con, n = 1)
     capSymbol <- toupper(symbol)
     if (capSymbol != "O" & capSymbol != "X") {
