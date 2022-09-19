@@ -6,7 +6,7 @@ The game has improved a lot since the last review.
 ​
 1. Functioning:
     - You should allow users to choose if they want X or O.
-    - _I've modified the function to enable users to make that choice, by adding the `chooseSymbol` function. _
+    - _I've modified the function to enable users to make that choice, by adding the `chooseSymbol` function._
     - After the input from the user to place their move as "o" vs computer, it takes too long to place the mark. You can use the `profvis` library to profile why it is taking so much time. Hint: sleep
     - _I've modified the sleep duration to 0.5 instead of 2._ 
     - Aesthetics: The game can be better aesthetically by placing `/n` in the outputs like error messages.
