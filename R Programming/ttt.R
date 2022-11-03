@@ -84,29 +84,55 @@ checkValidInput <- function(board, mark) {
     if (!pos %in% seq(1:9) || board[pos] == "o" || board[pos] == "x") {
       cat("This position is already marked or is an invalid value.\n" , 
             "Please enter another number.\n")
-      next()
+      next
     } else {
-      break()
+      break
     }
   }
   return(pos)
 }
 
+showBoardAfterPlayer <- function(board, human){
+  humanPos <- checkValidInput(board, human)
+  board <- playerMove(board, human, humanPos)
+  Sys.sleep(0.5)
+  showBoard(board)
+  if (checkIfWinnerExist(board) == T) {
+    cat("You won.")
+    break
+  }
+  
+}
 
-chooseSymbol <- function(symbol) {
+
+showBoardAfterComputer <- function(board, comp){
+  board <- computerMove(board, comp)
+  Sys.sleep(0.5)
+  showBoard(board)
+  
+  if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
+    cat("The computer has won.")
+    break
+  }
+  
+}
+
+chooseSymbol <- function() {
   while (TRUE) {
     cat("Please choose a symbol to start the game.\n X or O?")
     symbol <- readLines(con = con, n = 1)
     capSymbol <- toupper(symbol)
     if (capSymbol != "O" & capSymbol != "X") {
       cat("Invalid character. Please pick from X or O.", "\n")
-      next()
+      next
     } else {
       return(capSymbol)
-      break
+      
     }
   } 
 }
+
+
 
 
 # Intialize game
@@ -118,15 +144,16 @@ play <- function() {
       
       # the computer make a move first and the board is shown afterwards
       comp <- "x"
-      board <- computerMove(board, comp)
-      Sys.sleep(0.5)
-      showBoard(board)
-      
-      
-      if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
-        cat("The computer has won.")
-        break
-      }
+      #board <- computerMove(board, comp)
+      # Sys.sleep(0.5)
+      # showBoard(board)
+      # 
+      # 
+      # if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
+      #   cat("The computer has won.")
+      #   break
+      # }
+      showBoardAfterComputer(board, comp) 
       
       # if all spaces in board are occupied and there are no winners,
       # break loop and display msg
@@ -137,31 +164,23 @@ play <- function() {
       }
       # the human player's move is recorded and the board is shown afterwards
       human <- "o"
-      humanPos <- checkValidInput(board, human)
-      board <- playerMove(board, human, humanPos)
-      Sys.sleep(0.5)
-      showBoard(board)
+      showBoardAfterPlayer(board, human) 
+
       
-      if (checkIfWinnerExist(board) == T) {
-        cat("You won.")
-        break
-      }
+
     }
   } else if (chosenSymbol == "X") {
     cat("You've chosen to go first.\n")
     while (checkIfWinnerExist(board) == F) {
-      
+     
       # the human player's move is recorded and the board is shown afterwards
       human <- "x"
-      humanPos <- checkValidInput(board, human)
-      board <- playerMove(board, human, humanPos)
-      Sys.sleep(0.5)
-      showBoard(board)
-      
-      if (checkIfWinnerExist(board) == T) {
-        cat("You won.")
-        break
-      }
+      showBoardAfterPlayer(board, human) 
+      # 
+      # if (checkIfWinnerExist(board) == T) {
+      #   cat("You won.")
+      #   break
+      # }
       # if all spaces in board are occupied and there are no winners,
       # break loop and display msg
       if (sum(board == "x") + sum(board == "o") == 9 &&
@@ -171,14 +190,16 @@ play <- function() {
       }
       # the computer make a move first and the board is shown afterwards
       comp <- "o"
-      board <- computerMove(board, comp)
-      Sys.sleep(0.5)
-      showBoard(board)
+      # board <- computerMove(board, comp)
+      # Sys.sleep(0.5)
+      # showBoard(board)
+      # 
+      # if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
+      #   cat("The computer has won.")
+      #   break
+      # }
       
-      if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
-        cat("The computer has won.")
-        break
-      }
+      showBoardAfterComputer(board, comp) 
     } # close while loop for playing with comp mode
   }
   
