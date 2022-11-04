@@ -43,23 +43,28 @@ checkIfWinnerExist <- function(board) {
   nWinningCombo <- length(winningCombo) # 8 combos
   for (n in 1:nWinningCombo) { # for each winning combo, e
     
-    if (all((board[as.numeric(winningCombo[[n]])]) == "x") == T) {
-      win <- T
-    } else if (all((board[as.numeric(winningCombo[[n]])]) == "o") == T) {
-      win <- T
+    if (sum((board[as.numeric(winningCombo[[n]])]) == "x") ==3) {
+      win <- T 
+    } else if (sum((board[as.numeric(winningCombo[[n]])]) == "o") == 3) {
+       win <- T 
+    } else { 
     }
   }
-  return(win) # win is returned outside of for loop to ensure
+ return(win) # win is returned outside of for loop to ensure
 }
 
 # updates the board based on the player's moves
 # @param board
 # @param pos - input by human player
 # @mark - 'O' or 'X
-playerMove <- function(board, mark, pos) {
+playerMove <- function(board, mark) {
+  showBoard(board)
+  Sys.sleep(0.5)
+  pos <- checkValidInput(board, mark)
   board[pos] <- mark
   cat("You placed ", mark, "at position", pos, "\n")
   return(board)
+
 }
 
 # updates the board based on the computer's moves
@@ -67,6 +72,8 @@ playerMove <- function(board, mark, pos) {
 # @param pos - input by computer player
 # @mark - always 'X' because comp always goes first
 computerMove <- function(board, mark) {
+  showBoard(board)
+  Sys.sleep(0.5)
   notFilled <- board[!board %in% c("x", "o")] # which pos is not marked by X?
   pos <- as.numeric(sample(notFilled, 1)) #sample an unmarked position  
   board[pos] <- mark
@@ -83,7 +90,7 @@ checkValidInput <- function(board, mark) {
     pos <- as.numeric(readLines(con = con, n = 1))
     if (!pos %in% seq(1:9) || board[pos] == "o" || board[pos] == "x") {
       cat("This position is already marked or is an invalid value.\n" , 
-            "Please enter another number.\n")
+          "Please enter another number.\n")
       next
     } else {
       break
@@ -91,32 +98,7 @@ checkValidInput <- function(board, mark) {
   }
   return(pos)
 }
-
-showBoardAfterPlayer <- function(board, human){
-  humanPos <- checkValidInput(board, human)
-  board <- playerMove(board, human, humanPos)
-  Sys.sleep(0.5)
-  showBoard(board)
-  if (checkIfWinnerExist(board) == T) {
-    cat("You won.")
-    break
-  }
-  
-}
-
-
-showBoardAfterComputer <- function(board, comp){
-  board <- computerMove(board, comp)
-  Sys.sleep(0.5)
-  showBoard(board)
-  
-  if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
-    cat("The computer has won.")
-    break
-  }
-  
-}
-
+ 
 chooseSymbol <- function() {
   while (TRUE) {
     cat("Please choose a symbol to start the game.\n X or O?")
@@ -130,11 +112,9 @@ chooseSymbol <- function() {
       
     }
   } 
-}
+} 
 
-
-
-
+ 
 # Intialize game
 play <- function() {
   chosenSymbol <- chooseSymbol()
@@ -143,63 +123,63 @@ play <- function() {
     while (checkIfWinnerExist(board) == F) {
       
       # the computer make a move first and the board is shown afterwards
-      comp <- "x"
-      #board <- computerMove(board, comp)
-      # Sys.sleep(0.5)
-      # showBoard(board)
-      # 
-      # 
-      # if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
-      #   cat("The computer has won.")
-      #   break
-      # }
-      showBoardAfterComputer(board, comp) 
-      
-      # if all spaces in board are occupied and there are no winners,
+      comp <- "x" 
+      board <- computerMove(board, comp) 
+      if (checkIfWinnerExist(board)) { # Checks if there is a winner
+        showBoard(board)
+        cat("The computer has won.")
+        break
+      } 
+      #if all spaces in board are occupied and there are no winners,
       # break loop and display msg
       if (sum(board == "x") + sum(board == "o") == 9 &&
           checkIfWinnerExist(board) == F) {
+        showBoard(board)
         cat("It is a tie!.")
         break
       }
+      
       # the human player's move is recorded and the board is shown afterwards
-      human <- "o"
-      showBoardAfterPlayer(board, human) 
+      human <- "o" 
+      board <- playerMove(board, human)
+      if (checkIfWinnerExist(board)) {
+        showBoard(board)
+        cat("You won.")
+        break
+      }
 
       
-
     }
-  } else if (chosenSymbol == "X") {
+  } else if (chosenSymbol == "X") { # HUMAN PLAYER GOES FIRST
     cat("You've chosen to go first.\n")
     while (checkIfWinnerExist(board) == F) {
-     
-      # the human player's move is recorded and the board is shown afterwards
       human <- "x"
-      showBoardAfterPlayer(board, human) 
-      # 
-      # if (checkIfWinnerExist(board) == T) {
-      #   cat("You won.")
-      #   break
-      # }
-      # if all spaces in board are occupied and there are no winners,
+      board <- playerMove(board, human)
+      
+      if (checkIfWinnerExist(board)) {
+        showBoard(board)
+        cat("You won.")
+        break
+      }
+      
+      
+      #if all spaces in board are occupied and there are no winners,
       # break loop and display msg
       if (sum(board == "x") + sum(board == "o") == 9 &&
           checkIfWinnerExist(board) == F) {
+        showBoard(board)
         cat("It is a tie!.")
         break
       }
       # the computer make a move first and the board is shown afterwards
       comp <- "o"
-      # board <- computerMove(board, comp)
-      # Sys.sleep(0.5)
-      # showBoard(board)
-      # 
-      # if (checkIfWinnerExist(board) == T) { # Checks if there is a winner
-      #   cat("The computer has won.")
-      #   break
-      # }
-      
-      showBoardAfterComputer(board, comp) 
+      board <- computerMove(board, comp) 
+
+      if (checkIfWinnerExist(board)) { # Checks if there is a winner
+        showBoard(board)
+        cat("The computer has won.")
+        break
+      } 
     } # close while loop for playing with comp mode
   }
   
