@@ -1,7 +1,20 @@
-1. Functioning:
-    - You have forgotten to provide a reference board while asking for input in the first move as "X".
-    - I have modified the `playerMove()` and `computerMove()` functions so that the board will be shown at the beginning of the game no matter who the first player is.  
+*Q1: How many positions are found in this region in the VCF file?*
+ - 69
 
-2. Formatting/Style:
-    - The `next` and `break` doesn't require `()` you have mentioned them somewhere as `next()...break()` and somewhere as `next...break`. Else, the formatting looks good.
-    - _The parentheses were removed.   _
+
+*Q2: How many samples are included in the VCF file?*
+ ```bcftools stats CEU.exon.2010_03.genotypes.vcf.gz```
+- 90 
+
+*Q3: How many positions are there total in the VCF file?*
+
+ ```bcftools stats CEU.exon.2010_03.genotypes.vcf.gz```
+- 3489 
+
+*Q4: How many positions are there with AC=1?*
+
+```bcftools query -i'AC=1' -f'%CHROM %POS %QUAL %DP\n' CEU.exon.2010_03.genotypes.vcf.gz | wc -l```
+- 1075
+
+
+*Q5: What is the ratio of transitions to transversions (ts/tv) in this file?*
