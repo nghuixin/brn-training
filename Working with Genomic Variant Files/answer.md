@@ -23,4 +23,4 @@
 - ts/tv = 3.47
 
 *Q6: What is the median number of variants per sample in this data set?*  
-
+- 28
