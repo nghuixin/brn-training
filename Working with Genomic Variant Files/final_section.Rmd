@@ -1,0 +1,40 @@
+---
+title: "Maftools exercise"
+output: html_notebook
+---
+
+```{r}
+if (!require("BiocManager"))
+    install.packages("BiocManager")
+BiocManager::install("maftools")
+library(maftools)
+
+# view available TCGA cohorts, check that LGG is there
+tcgaAvailable()
+
+# load the available LGG cohort
+lgg <- tcgaLoad(study = "LGG")
+
+# view a summary of this file containing LGG sample's somatic variants
+lgg
+
+```
+```{r}
+# oncoplot of the top five mutated genes
+vc_cols = RColorBrewer::brewer.pal(n = 10, name = 'Paired')
+
+oncoplot(maf = lgg, colors = vc_cols, top = 5)
+```
+
+```{r}
+# boxplot of the transistion-to-transversion ratio
+lgg.titv = titv(maf = lgg, plot = FALSE, useSyn = TRUE)
+plotTiTv(res = lgg.titv)
+```
+
+```{r}
+# plot comparing the mutation load in this LGG cohort to other TCGA cohorts using log scale.
+lag.mutload = tcgaCompare(maf = lgg, cohortName = 'LGG', logscale = TRUE, capture_size = 50)
+
+```
+

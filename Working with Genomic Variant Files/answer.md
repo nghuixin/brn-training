@@ -21,3 +21,6 @@
 *Q5: What is the ratio of transitions to transversions (ts/tv) in this file?*  
 
 - ts/tv = 3.47
+
+*Q6: What is the median number of variants per sample in this data set?*  
+
