@@ -1,8 +1,9 @@
-*Q1: How many positions are found in this region in the VCF file?*
+*Q1: How many positions are found in this region in the VCF file?*  
  - 69
 
 
-*Q2: How many samples are included in the VCF file?*
+*Q2: How many samples are included in the VCF file?*  
+
  ```bcftools stats CEU.exon.2010_03.genotypes.vcf.gz```
 - 90 
 
@@ -17,4 +18,6 @@
 - 1075
 
 
-*Q5: What is the ratio of transitions to transversions (ts/tv) in this file?*
+*Q5: What is the ratio of transitions to transversions (ts/tv) in this file?*  
+
+- ts/tv = 3.47
