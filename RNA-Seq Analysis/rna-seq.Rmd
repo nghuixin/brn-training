@@ -20,12 +20,9 @@ if (any(installed_packages == FALSE)) {
 
 invisible(lapply(packages, library, character.only = TRUE))
 ```
+   
 
-Dataset   
--  E-GEOD-50760;  PMID: 25049118.  
-- 54 samples from 18 individuals, each individual has 3 distinct samples    
-
-```{r  , message=FALSE}
+```{r, results='hide'}
 # read count info
 rawCounts <- read.delim("E-GEOD-50760-raw-counts.tsv")
 # Read sample info
@@ -72,7 +69,7 @@ sampleData <- sampleData %>%
 # head(sampleData)
 ```
 
-```{r, message = FALSE}
+```{r, results='hide'}
 # ensure colnames of the count matrix are in same order as the row names of the sample mapping data
 rawCounts <- rawCounts[,unique(rownames(sampleData))]
 all(colnames(rawCounts) == rownames(sampleData))
@@ -153,8 +150,7 @@ volcano_plot
 ```
 
 ## Heatmap 
-Remove the experiment-wide trend/dependence of variance on the mean before clustering 
-Use vst() variance stabilizing transform to transform values from the seq counts. 
+Use vst() variance stabilizing transform to transform values from the seq counts.   
 Only genes that were significantly differentially expressed (q-value <= .05) and with a log2 fold change greater than 3 were included in the heatmap. 
 
 ```{r}
@@ -191,7 +187,7 @@ deseq2ResDF %>%
 
 ## Heatmap of Top 10 Differentially Expressed Genes  
 Sample type is shown with colored bars at the top of the heatmap. Across individual samples, blocks of genes co-vary. There are also sets of genes for which normal tissue have higher gene expression. We center and scale each gene's value across samples, to examine the amount by which each gene deviates in a specific sample from the gene's average across all samples.    
-```{r , fig.height=8}
+```{r, fig.height=5, fig.width=10}
 # Create file for count visualization by vst normalization
 # https://bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html
 
