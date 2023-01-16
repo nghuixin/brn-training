@@ -7,11 +7,17 @@ output: html_document
  
 ##  
 ```{r  , echo=FALSE}
-list_of_pkgs <- c("tidyr", "dplyr", "DESeq2")
-install.packages(list_of_pkgs[! list_of_pkgs %in% rownames(installed.packages())])
-library(tidyr)
-library(dplyr)
-library(DESeq2)
+packages <- c("tidyr", "dplyr", "DESeq2", "pheatmap", "enrichR", "msigdbr")
+ 
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])
+}
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+
+```{r}
 df1 <- read.table("GSE54112_TPM_all.txt.gz", stringsAsFactors = FALSE, sep = "", header = TRUE)
  
 
@@ -32,6 +38,7 @@ df1 <- df1   %>%
 
 df1 <- df1 %>% replace(is.na(.), 0)
 df1 <- df1 %>% select(rownames(sample_info))
+df1
 ```
 
 ```{r}

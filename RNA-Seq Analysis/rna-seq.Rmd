@@ -1,0 +1,271 @@
+---
+title: "RNASeq_Analysis"
+author: "Hui Xin Ng"
+date: "2022-09-06"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+This dataset used is from [PMID: 25049118](https://pubmed.ncbi.nlm.nih.gov/25049118/) obtained from [EMBL-EBI expression atlas](https://www.ebi.ac.uk/gxa/experiments/E-GEOD-50760/Downloads?ref=biostudies).  There are 54 samples from 18 individuals. Each individual has 3 samples (normal colon, primary CRC, and liver metastases).  Genes associated with colorectal cancer (CRC) aggressiveness were identified. 
+
+```{r  ,  message=FALSE}
+options(warn=-1)
+packages <- c( "dplyr", "DESeq2", "pheatmap", "enrichR", "msigdbr", "tidyverse", "biomaRt", "org.Hs.eg.db", "EnhancedVolcano", "kableExtra", "RColorBrewer", "pheatmap", "reshape2", "ggplot2", "fgsea")
+ 
+installed_packages <- packages %in% rownames(installed.packages())
+if (any(installed_packages == FALSE)) {
+  install.packages(packages[!installed_packages])}
+
+invisible(lapply(packages, library, character.only = TRUE))
+```
+
+Dataset   
+-  E-GEOD-50760;  PMID: 25049118.  
+- 54 samples from 18 individuals, each individual has 3 distinct samples    
+
+```{r  , message=FALSE}
+# read count info
+rawCounts <- read.delim("E-GEOD-50760-raw-counts.tsv")
+# Read sample info
+sampleData <- read.delim("E-GEOD-50760-experiment-design.tsv")
+# head(sampleData) # there are 16 columns on info/description about each of the 54 samples
+```
+ 
+# Step 1: preparing count data and sample info  
+```{r  , message=FALSE}
+# store readcounts and other calcs for DSEq
+# obj also stores design formula to estimate dispersion and log2 fold changes
+
+# Convert count data to a matrix  
+geneID <- rawCounts$Gene.ID # get a list of the gene name from the col Gene.ID
+sampleIndex <- grepl("SRR\\d+", colnames(rawCounts))
+rawCounts <- as.matrix(rawCounts[,sampleIndex])
+rownames(rawCounts) <- geneID # use gene names as rownames
+# matrix with genes as row names, and samples as col names
+ 
+ens <- rownames(rawCounts)
+symbols <- mapIds(org.Hs.eg.db, keys = ens, column = c('SYMBOL'), keytype = 'ENSEMBL')
+
+symbols <- symbols[!is.na(symbols)]
+symbols <- symbols[match(rownames(rawCounts), names(symbols))]
+
+rownames(rawCounts) <- symbols
+keep <- !is.na(rownames(rawCounts))
+rawCounts <- rawCounts[keep,] 
+
+```
+
+
+```{r, message = FALSE}
+# map samples to variables, keep only 2 columns on tissue type and person ID
+rownames(sampleData) <- sampleData$Run
+keep <- c("Sample.Characteristic.biopsy.site.", "Sample.Characteristic.individual.")
+sampleData <- sampleData[,keep]
+# rename cols
+colnames(sampleData) <- c("tissueType", "personID")
+sampleData$personID <- factor(sampleData$personID)
+ 
+sampleData <- sampleData %>%
+    mutate(tissueType = str_replace_all(tissueType, " ", "_"))
+# head(sampleData)
+```
+
+```{r, message = FALSE}
+# ensure colnames of the count matrix are in same order as the row names of the sample mapping data
+rawCounts <- rawCounts[,unique(rownames(sampleData))]
+all(colnames(rawCounts) == rownames(sampleData))
+```
+
+# Step 2: construct a DESeqDataSet object 
+```{r  , message=FALSE}
+deseq2Data <- DESeqDataSetFromMatrix(countData=rawCounts, colData=sampleData, design= ~ personID + tissueType) # person id as a blocking factor and tissue type as the comparison variable.
+deseq2Data$tissueType <- relevel(deseq2Data$tissueType, ref = "normal")
+```
+
+# Step 3: Run DESeq 
+```{r, message = FALSE}
+deseq2Data <- DESeq(deseq2Data)
+```
+
+```{r}
+# extract the DE results using results()
+# use contrast parameter to take in a char vector of three elements 
+# Compare between primary tumor vs. normal
+deseq2Results_colorectal <- results(deseq2Data, contrast=c("tissueType", "primary_tumor", "normal"), alpha = 0.01)
+deseq2Results_colorectal <- deseq2Results_colorectal[order(deseq2Results_colorectal$padj),]
+
+deseq2Results_liver <- results(deseq2Data, contrast=c("tissueType", "colorectal_cancer_metastatic_in_the_liver", "normal"),  alpha = 0.01)
+deseq2Results_liver <- deseq2Results_liver[order(deseq2Results_liver$padj),] 
+
+```
+
+# Step 4: Explore Results  
+How many genes are up- and down-regulated?
+How many genes have low counts?
+
+```{r}
+# normal vs. colorectal cancer
+summary(deseq2Results_colorectal) 
+```
+
+```{r}
+# normal vs. metastatic liver sample
+summary(deseq2Results_liver)
+```
+
+
+# Step 5: Visualization  
+We expect the expression of genes to be consistent between conditions (i.e., normal tissue vs. primary tumors), so the MA plot should have most points surrounding the y-intercept of 0.  Essentially this plot shows the log2 fold changes of mean counts normalized by size factor on the y-axis and the mean expression across all samples on the x-axis. Each gene is represented by a point. Genes with an adjusted p-value below a threshold of 0.1 are shown in blue.  
+
+```{r}
+# MA plot to show log ratio (M) vs. an average (A) in order to visualize differences between groups
+plotMA(deseq2Results_colorectal)
+```
+
+## PCA plot by tissue type
+Rlog transformation is applied to the normalized counts to produce a variance-stabilizing effect, similar to vst(). 
+```{r, message=FALSE}
+#jpeg('PCA.jpg')
+rld<-rlogTransformation(deseq2Data,blind=TRUE, fitType='local')
+pca_data <- plotPCA(rld, intgroup="tissueType", returnData = TRUE)
+percentVar <- round(100 * attr(pca_data, "percentVar"), digits=2)
+pca_plot <- ggplot(pca_data, aes(PC1, PC2, color=tissueType)) + geom_point() +
+  scale_x_continuous(paste0("PC1: ",percentVar[1],"% variance")) +
+  scale_y_continuous(paste0("PC2: ",percentVar[2],"% variance"))  + coord_fixed() + theme_classic()
+pca_plot 
+#dev.off()
+```
+
+## Volcano plot
+```{r, fig.height=10, fig.width=10}
+volcano_plot <- EnhancedVolcano(deseq2Results_colorectal,
+    lab = rownames(deseq2Results_colorectal),
+    x = 'log2FoldChange',
+    y = 'pvalue',
+    title = 'Primary Tumor versus Normal Tissue',
+    pCutoff = 10e-16,
+    FCcutoff = 0.5,
+    pointSize = 3.0,
+    labSize = 6.0)
+volcano_plot
+```
+
+## Heatmap 
+Remove the experiment-wide trend/dependence of variance on the mean before clustering 
+Use vst() variance stabilizing transform to transform values from the seq counts. 
+Only genes that were significantly differentially expressed (q-value <= .05) and with a log2 fold change greater than 3 were included in the heatmap. 
+
+```{r}
+# Transform count data using the variance stablilizing transform
+deseq2VST <- vst(deseq2Data)
+
+# Convert the DESeq transformed object to a data frame
+deseq2VST <- assay(deseq2VST)
+deseq2VST <- as.data.frame(deseq2VST)
+deseq2VST$Gene <- rownames(deseq2VST)
+
+# Coerce to a data frame
+deseq2ResDF <- as.data.frame(deseq2Results_colorectal)
+
+# Keep only the significantly differentiated genes where the fold-change was at least 3
+sigGenes <- rownames(deseq2ResDF[deseq2ResDF$padj <= .05 & abs(deseq2ResDF$log2FoldChange) > 3,])
+deseq2VST <- deseq2VST[deseq2VST$Gene %in% sigGenes,]
+
+# Convert the VST counts to long format for ggplot2
+deseq2VST_long <- melt(deseq2VST, id.vars=c("Gene"))
+deseq2VST <- deseq2VST_long
+
+col = colorRampPalette(rev(brewer.pal(n = 10, name = "RdYlBu")))(100)
+# Make a heatmap
+heatmap <- ggplot(deseq2VST, aes(x=variable, y=Gene, fill=value)) + geom_raster()  + theme(axis.text.x=element_text(angle=90, hjust=1.0), axis.text.y=element_blank(), axis.ticks.y=element_blank()) + scale_fill_viridis_c(option = "magma") + theme(axis.text.x = element_text(size = 7.5)) +   scale_x_discrete(name ="Sample" )
+heatmap
+```
+## Top 10 Differentially Expressed Genes
+```{r}
+deseq2ResDF %>%
+  dplyr::select(log2FoldChange, padj) %>%  head(10)%>%  format(2^31-1, scientific = TRUE, digits = 5) %>% mutate(padj = as.character(padj))%>%
+  kable(align = ("ccc"),  caption = "Table 1: List of the top 20 differentially expressed genes (DEGs)")
+```
+
+## Heatmap of Top 10 Differentially Expressed Genes  
+Sample type is shown with colored bars at the top of the heatmap. Across individual samples, blocks of genes co-vary. There are also sets of genes for which normal tissue have higher gene expression. We center and scale each gene's value across samples, to examine the amount by which each gene deviates in a specific sample from the gene's average across all samples.    
+```{r , fig.height=8}
+# Create file for count visualization by vst normalization
+# https://bioconductor.org/packages/release/workflows/vignettes/rnaseqGene/inst/doc/rnaseqGene.html
+
+vsd <- vst(deseq2Data )
+mat <- assay(vsd)[head( match(row.names(deseq2Results_colorectal ), row.names(vsd)) , 10), ]
+mat <- mat - rowMeans(mat)
+df <- as.data.frame(colData(vsd)[, c("tissueType")])
+df <- data.frame(sample=df$`colData(vsd)[, c("tissueType")]`)
+rownames(df) <- colnames(mat)
+
+#Produce heatmap
+heatmap_top10 <- pheatmap(mat, annotation_col = df, cluster_rows = F , cluster_cols = F ,show_colnames = F, scale="row", trace = 'none', col = colorRampPalette( rev(brewer.pal(9, "RdBu")) )(255) )
+heatmap_top10
+```
+
+## GSEA  
+```{r} 
+res2 <- deseq2ResDF %>% mutate(symbol = rownames(deseq2ResDF)) %>%
+  dplyr::select(symbol, stat) %>% 
+  na.omit() %>% 
+  distinct %>% 
+  group_by(symbol) %>% 
+  summarize(stat=mean(stat)) # use stat col from DESeq2 results as ranking metric
+ranks <- deframe(res2)
+head(ranks, 10)
+```
+
+```{r}
+# Load the pathways into a named list
+pathways.hallmark <- gmtPathways("h.all.v6.2.symbols.gmt")
+# View first few pathways and within those show only the first few genes. 
+# pathways.hallmark %>% 
+#   head() %>% 
+#   lapply(head)  
+fgseaRes <- fgsea(pathways=pathways.hallmark, stats=ranks, nperm=1000)
+
+fgseaResTidy <- fgseaRes %>%
+  as_tibble() %>%
+  arrange(desc(NES)) 
+
+# Show in a nice table:
+top_5_pathways <- fgseaResTidy %>% 
+  dplyr::select(-leadingEdge, -ES, -nMoreExtreme) %>% 
+  arrange(padj) %>% head(5)
+
+top_5_pathways %>% kable(align = ("lcccc"), caption = "Top 5 enriched pathways from the Molecular Signatures Database (MSigDB) ")
+ 
+```
+
+
+```{r fig.height = 10, fig.width = 8}
+ ggplot(fgseaResTidy, aes(reorder(pathway, NES), NES)) +
+  geom_col(aes(fill=padj<0.01)) +
+  coord_flip() +
+  labs(x="Pathway", y="Normalized Enrichment Score",
+       title="Hallmark pathways NES from GSEA") + 
+  theme_minimal()
+```
+
+## Genes involved in each of the 5 pathways  
+```{r} 
+# https://stephenturner.github.io/deseq-to-fgsea/
+deseq2ResDF <- deseq2ResDF %>% mutate(symbol = rownames(deseq2ResDF))
+geneID_set <- setNames(names(symbols), symbols)
+geneIDs <- geneID_set[match(deseq2ResDF$symbol, names(geneID_set))]
+deseq2ResDF$geneID <- geneIDs
+
+sig_gsea_df <- pathways.hallmark %>% 
+  enframe("pathway", "symbol") %>% 
+  unnest(cols=c(symbol)) %>% 
+  inner_join(deseq2ResDF, by="symbol")   %>%
+  filter(padj <= 0.01)  %>%   arrange(pathway, (padj)) %>% inner_join(head(fgseaResTidy, 5), by = 'pathway')
+ 
+n_unique_genes <- length(unique(sig_gsea_df$symbol)) # n unique genes involved in 5  pathways
+
+```
+Total number of genes involved in the 5 pathways (**`r top_5_pathways$pathway`** ):   **`r n_unique_genes`**     
